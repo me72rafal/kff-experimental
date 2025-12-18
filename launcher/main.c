@@ -868,7 +868,7 @@ static void help(void)
     textcolor(BACKC);
     cputsxy(10, 1, "\xa3\xa3\xa3\xa3\xa3\xa3\xa3\xa3\xa3\xa3\xa3\xa3\xa3\xa3\xa3\xa3\xa3\xa3\xa3");
 
-    cputsxy(2, 2, "github.com/KimJorgensen/KungFuFlash");
+    cputsxy(1, 2, "codeberg.org/KimJorgensen/KungFuFlash");
 
     textcolor(TEXTC);
     cputsxy(0, 5, "<CRSR> or Joy       Change selection");

@@ -20,7 +20,7 @@ You can also 3D print a cartridge case as the one designed by bigby, [see here](
 
 ![Kung Fu Flash PCB](pics/pcb_rev2.jpg)
 
-The gerber files and BOM can be found [here](https://github.com/KimJorgensen/KungFuFlash/releases/tag/rev.2).
+The gerber files and BOM can be found [here](https://codeberg.org/KimJorgensen/KungFuFlash/releases/tag/rev.2).
 
 ## Supported Cartridges
 
@@ -82,7 +82,7 @@ For that reason a modified version of [EasyFlash 3 USB Utilities](3rd_party/ef3u
 ## Firmware Update
 
 Just place the KungFuFlash_v1.xx.upd file on the SD card and select the file in the launcher to initiate the firmware update.
-The newest firmware can be found [here](https://github.com/KimJorgensen/KungFuFlash/releases/).
+The newest firmware can be found [here](https://codeberg.org/KimJorgensen/KungFuFlash/releases/).
 
 For initial firmware installation, [see here](firmware/README.md).
 
