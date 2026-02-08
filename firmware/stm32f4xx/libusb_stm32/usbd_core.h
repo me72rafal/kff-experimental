@@ -269,8 +269,13 @@ typedef int32_t (*usbd_hw_ep_read)(uint8_t ep, void *buf, uint16_t blen);
  * \param buf pointer to data buffer
  * \param blen size of data will be written
  * \return number of written bytes
+ *
+ * The \ref usbd_evt_eptx event will fire for the endpoint once the
+ * write is \e complete. A trick commonly used is to enqueue a zero-length
+ * write as soon as the endpoint is configured, so that it would
+ * "complete", firing an event, the next time an IN request arrives.
  */
-typedef int32_t (*usbd_hw_ep_write)(uint8_t ep, void *buf, uint16_t blen);
+typedef int32_t (*usbd_hw_ep_write)(uint8_t ep, const void *buf, uint16_t blen);
 
 /** Stalls and unstalls endpoint
  * \param ep endpoint address
@@ -419,7 +424,7 @@ inline static void usbd_reg_event(usbd_device *dev, uint8_t evt, usbd_evt_callba
  * \param dev dev usb device \ref _usbd_device
  * \copydetails usbd_hw_ep_write
  */
-inline static int32_t usbd_ep_write(usbd_device *dev, uint8_t ep, void *buf, uint16_t blen) {
+inline static int32_t usbd_ep_write(usbd_device *dev, uint8_t ep, const void *buf, uint16_t blen) {
     return dev->driver->ep_write(ep, buf, blen);
 }
 
