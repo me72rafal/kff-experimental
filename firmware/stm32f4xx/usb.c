@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021 Kim Jørgensen
+ * Copyright (c) 2019-2026 Kim Jørgensen
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any damages
@@ -22,12 +22,9 @@
  * Apache License 2.0
  */
 
-#include "stm32.h"
 #include "usb.h"
 #include "usb_cdc.h"
 #include "usb_hid.h"
-#include "hid_usage_desktop.h"
-#include "hid_usage_button.h"
 
 #define USBD_SOF_DISABLED
 #include "usbd_core.c"
@@ -39,8 +36,6 @@
 #define CDC_DATA_SZ     0x40
 #define CDC_NTF_EP      0x82
 #define CDC_NTF_SZ      0x08
-#define HID_RIN_EP      0x83
-#define HID_RIN_SZ      0x10
 
 
 /* Declaration of the report descriptor */
@@ -57,35 +52,6 @@ struct cdc_config {
     struct usb_endpoint_descriptor      data_eprx;
     struct usb_endpoint_descriptor      data_eptx;
 } __attribute__((packed));
-
-/* HID mouse report desscriptor. 2 axis 5 buttons */
-static const u8 hid_report_desc[] = {
-    HID_USAGE_PAGE(HID_PAGE_DESKTOP),
-    HID_USAGE(HID_DESKTOP_MOUSE),
-    HID_COLLECTION(HID_APPLICATION_COLLECTION),
-        HID_USAGE(HID_DESKTOP_POINTER),
-        HID_COLLECTION(HID_PHYSICAL_COLLECTION),
-            HID_USAGE(HID_DESKTOP_X),
-            HID_USAGE(HID_DESKTOP_Y),
-            HID_LOGICAL_MINIMUM(-127),
-            HID_LOGICAL_MAXIMUM(127),
-            HID_REPORT_SIZE(8),
-            HID_REPORT_COUNT(2),
-            HID_INPUT(HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_RELATIVE ),
-            HID_USAGE_PAGE(HID_PAGE_BUTTON),
-            HID_USAGE_MINIMUM(1),
-            HID_USAGE_MAXIMUM(5),
-            HID_LOGICAL_MINIMUM(0),
-            HID_LOGICAL_MAXIMUM(1),
-            HID_REPORT_SIZE(1),
-            HID_REPORT_COUNT(5),
-            HID_INPUT(HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE ),
-            HID_REPORT_SIZE(1),
-            HID_REPORT_COUNT(3),
-            HID_INPUT(HID_IOF_CONSTANT),
-        HID_END_COLLECTION,
-    HID_END_COLLECTION,
-};
 
 /* Device descriptor */
 static const struct usb_device_descriptor device_desc = {
@@ -150,7 +116,6 @@ static const struct cdc_config config_desc = {
         .bDescriptorSubType     = USB_DTYPE_CDC_CALL_MANAGEMENT,
         .bmCapabilities         = 0,
         .bDataInterface         = 1,
-
     },
     .cdc_acm = {
         .bFunctionLength        = sizeof(struct usb_cdc_acm_desc),
@@ -225,7 +190,7 @@ static struct usb_cdc_line_coding cdc_line = {
     .bDataBits          = 8,
 };
 
-static usbd_respond cdc_getdesc (usbd_ctlreq *req, void **address, u16 *length) {
+static usbd_respond cdc_getdesc(usbd_ctlreq *req, void **address, u16 *length) {
     const u8 dtype = req->wValue >> 8;
     const u8 dnumber = req->wValue & 0xFF;
     const void* desc;
@@ -416,8 +381,11 @@ static void usb_config(void)
                GPIO_MODER_MODER11_1|GPIO_MODER_MODER12_1);
 
     cdc_init_usbd();
+
+    // Configure interrupt
     NVIC_SetPriority(OTG_FS_IRQn, 0x07);
     NVIC_EnableIRQ(OTG_FS_IRQn);
+
     usbd_enable(&udev, true);
     usbd_connect(&udev, true);
 }
