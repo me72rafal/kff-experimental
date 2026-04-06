@@ -339,7 +339,6 @@ static int32_t ep_read(uint8_t ep, void* buf, uint16_t blen) {
             tmp >>= 8;
         }
     }
-    _BST(EPOUT(ep)->DOEPCTL, USB_OTG_DOEPCTL_CNAK | USB_OTG_DOEPCTL_EPENA);
     return (len < blen) ? len : blen;
 }
 
@@ -412,6 +411,10 @@ static void evt_poll(usbd_device *dev, usbd_evt_callback callback) {
                 }
                 evt = usbd_evt_epsetup;
                 break;
+            case 0x03:  /* OUT completed */
+            case 0x04:  /* SETUP completed */
+                _BST(EPOUT(ep)->DOEPCTL, USB_OTG_DOEPCTL_CNAK | USB_OTG_DOEPCTL_EPENA);
+                // fall through
             default:
                 /* pop GRXSTSP */
                 OTG->GRXSTSP;
