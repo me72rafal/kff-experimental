@@ -23,7 +23,10 @@ void close_serial(void)
     serial = -1;
 }
 
-int open_serial(const char * device)
+#define BAUD_DEFAULT    B115200
+#define BAUD_RESET      B1200
+
+int open_serial(const char * device, speed_t speed)
 {
     while (1)
     {
@@ -65,8 +68,8 @@ int open_serial(const char * device)
         tio.c_cc[VMIN] = 1;
         tio.c_cc[VTIME] = 0;                            // No timeout
 
-        if(cfsetospeed(&tio, B115200) != -1 &&          // 115200 baud
-           cfsetispeed(&tio, B115200) != -1)
+        if(cfsetospeed(&tio, speed) != -1 &&            // Set baud rate
+           cfsetispeed(&tio, speed) != -1)
         {
             if(tcsetattr(serial, TCSANOW, &tio) != -1)
             {
@@ -136,7 +139,10 @@ void close_serial(void)
     serial = INVALID_HANDLE_VALUE;
 }
 
-int open_serial(const char * port)
+#define BAUD_DEFAULT    CBR_115200
+#define BAUD_RESET      CBR_1200
+
+int open_serial(const char * port, DWORD baudrate)
 {
     char filename[10];
     snprintf(filename, sizeof(filename), "\\\\.\\%s", port);
@@ -161,7 +167,7 @@ int open_serial(const char * port)
         return 1;
     }
 
-    dcb.BaudRate            = CBR_115200;
+    dcb.BaudRate            = baudrate;
     dcb.StopBits            = ONESTOPBIT;
     dcb.ByteSize            = 8;
     dcb.Parity              = NOPARITY;
@@ -449,7 +455,12 @@ void sendindicator(int format, int track, int sector)
 
 void printusage(const char * executable)
 {
-   printf("Usage: %s port command [file] [options]\n", executable);
+   printf("Usage: %s port command [file] [options]\n\n", executable);
+   printf("----------- Kung Fu Flash menu commands:\n");
+   printf(" b[urn]     file.crt                       - save file.crt (not supported)\n");
+   printf(" s[end]     [file.prg]                     - send file.prg to execute\n");
+   printf("                                             if no file then send ef3usb.prg\n");
+   printf("----------- ef3usb.prg commands:\n");
    printf(" e[xecute]  file.prg|p00                   - execute prg on c64\n");
    printf(" c[opy]     file.prg|p00|d64|d81|d71       - copy files to c64\n");
    printf(" x[fer]     [p00]                          - copy files from c64\n");
@@ -460,12 +471,10 @@ void printusage(const char * executable)
    printf(" f[ormat]   [40]                           - turbo format 1541 floppy\n");
    printf(" t[apwrite] file.tap                       - write tap file to tape\n");
    printf(" m[aketap]  file.tap                       - read tap file from tape\n");
-   printf("----------- the following are to be used in EF3 menu mode: \n");
-   printf(" b[urn]     file.crt                       - flash crt file to the ef3\n");
-   printf(" s[end]     [file.prg]                     - send file.prg to EF3 menu\n");
-   printf("                                             if no file then send ef3usb.prg\n");
    printf(" 0[test]                                   - test the usb connection\n");
-#ifndef _WIN32
+   printf("----------- general commands:\n");
+   printf(" n[reset]                                  - reset to Kung Fu Flash menu\n\n");
+   #ifndef _WIN32
    printf("Example: %s /dev/ttyACM0 s\n", executable);
 #else
    printf("Example: %s COM4 s\n", executable);
@@ -500,13 +509,13 @@ int main(int argc, char *argv[])
 
   char p00start[8] = "C64File\0";
 
-  printf("EF3 USB Client v1.93.1 - Kung Fu Flash version\n");
+  printf("EF3 USB Client v1.93.2 - Kung Fu Flash version\n");
   if (argc < 3)
   {
         printusage(argv[0]);
   }
 
-  if (open_serial(argv[1])) return 1;
+  if (open_serial(argv[1], BAUD_DEFAULT)) return 1;
   int verify = 0;
 
   printf("\n");
@@ -650,6 +659,9 @@ int main(int argc, char *argv[])
                   {
                         fname = "ef3usb.prg";
                   }
+                  break;
+        case 'n': command = 12;
+                  printf(" - RESET TO MENU\n");
                   break;
         default: printusage(argv[0]);
   }
@@ -1946,6 +1958,11 @@ int main(int argc, char *argv[])
           }
 
   // END OF COPY
+  }
+  else if (command == 12)
+  {
+        close_serial();
+        open_serial(argv[1], BAUD_RESET);
   }
 
 exitpoint:
