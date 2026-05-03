@@ -31,8 +31,7 @@ BUILD_DIR = build
 # C sources
 C_SOURCES =  \
 main.c \
-fatfs/ff.c \
-fatfs/ffunicode.c
+fatfs/fatfs.c
 
 # ASM sources
 ASM_SOURCES =  \
