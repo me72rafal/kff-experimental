@@ -89,8 +89,12 @@ SECTIONS
     *(.glue_7t)        /* glue thumb to arm code */
     *(.eh_frame)
 
+    PROVIDE_HIDDEN (__init_start = .);
     KEEP (*(.init))
+    PROVIDE_HIDDEN (__init_end = .);
+    PROVIDE_HIDDEN (__fini_start = .);
     KEEP (*(.fini))
+    PROVIDE_HIDDEN (__fini_end = .);
 
     . = ALIGN(4);
     _etext = .;        /* define a global symbols at end of code */
@@ -132,6 +136,12 @@ SECTIONS
     KEEP (*(.fini_array*))
     PROVIDE_HIDDEN (__fini_array_end = .);
   } >FLASH
+
+  ASSERT(__init_start == __init_end, ".init section present but C runtime init/fini support is disabled")
+  ASSERT(__fini_start == __fini_end, ".fini section present but C runtime init/fini support is disabled")
+  ASSERT(__preinit_array_start == __preinit_array_end, ".preinit_array section present but C runtime init/fini support is disabled")
+  ASSERT(__init_array_start == __init_array_end, ".init_array section present but C runtime init/fini support is disabled")
+  ASSERT(__fini_array_start == __fini_array_end, ".fini_array section present but C runtime init/fini support is disabled")
 
   /* used by the startup to initialize data */
   _sidata = LOADADDR(.data);

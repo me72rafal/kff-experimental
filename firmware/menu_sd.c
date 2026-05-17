@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 Kim Jørgensen
+ * Copyright (c) 2019-2026 Kim Jørgensen
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any damages
@@ -324,7 +324,7 @@ static u8 sd_handle_dir(SD_STATE *state)
                     break;
                 }
 
-                if (strncmp(dat_file.file, file_info.fname, sizeof(dat_file.file)) == 0)
+                if (strcmp(dat_file.file, file_info.fname) == 0)
                 {
                     found = true;
                     break;

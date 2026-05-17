@@ -17,7 +17,7 @@ LAUNCHER = $(LAUNCHER_DIR)build/KungFuLauncher_v$(version).bin
 # debug build?
 DEBUG = 0 #1
 # optimization
-OPT = -Os #-Og
+OPT = -Os -fwhole-program #-Og
 
 #######################################
 # paths
@@ -30,8 +30,7 @@ BUILD_DIR = build
 ######################################
 # C sources
 C_SOURCES =  \
-main.c \
-fatfs/fatfs.c
+main.c
 
 # ASM sources
 ASM_SOURCES =  \
@@ -98,7 +97,7 @@ C_INCLUDES =  \
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
 
-CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fsingle-precision-constant -fomit-frame-pointer -fdata-sections -ffunction-sections -Wno-unused-function
+CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fsingle-precision-constant -fomit-frame-pointer -fdata-sections -ffunction-sections -ffreestanding -Wno-unused-function
 
 ifeq ($(DEBUG), 1)
 CFLAGS += -g -gdwarf-2
@@ -114,9 +113,9 @@ CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 LDSCRIPT = stm32f4xx/STM32F405RGTx_FLASH.ld
 
 # libraries
-LIBS = -lc -lm -lnosys
+LIBS =
 LIBDIR =
-LDFLAGS_COMMON = $(MCU) -specs=nano.specs $(LIBDIR) $(LIBS) -Wl,--gc-sections
+LDFLAGS_COMMON = $(MCU) -nostdlib $(LIBDIR) $(LIBS) -Wl,--gc-sections
 LDFLAGS = $(LDFLAGS_COMMON) -T$(LDSCRIPT) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref
 
 # default action: build all
@@ -167,7 +166,7 @@ debug: all
 # burn flash
 #######################################
 burn: all
-	@st-flash write $(BUILD_DIR)/$(TARGET).bin 0x8000000
+	@st-flash write $(BUILD_DIR)/$(TARGET).upd 0x8000000
 	@#dfu-util -a 0 -s 0x08000000 -D $(BUILD_DIR)/$(TARGET).bin
 
 mem: $(BUILD_DIR)/$(TARGET).bin

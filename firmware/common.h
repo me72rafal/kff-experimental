@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2022 Kim Jørgensen
+ * Copyright (c) 2019-2026 Kim Jørgensen
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any damages
@@ -20,6 +20,8 @@
 
 #define COMPILER_BARRIER() asm volatile("" ::: "memory")
 
+#define EXPORT __attribute__((externally_visible))
+#define IRQ_HANDLER EXPORT __attribute__((used)) void
 #define FORCE_INLINE __attribute__((always_inline)) static inline
 #define NO_RETURN __attribute__((noreturn)) static void
 

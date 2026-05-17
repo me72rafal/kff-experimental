@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2024 Kim Jørgensen
+ * Copyright (c) 2019-2026 Kim Jørgensen
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any damages
@@ -134,7 +134,7 @@ FORCE_INLINE void wait_n_cycles(u32 n_cycles)
 
 #define C64_BUS_HANDLER_(handler, read_handler, write_handler)                  \
 __attribute__((optimize("O2")))                                                 \
-static void handler(void)                                                       \
+EXPORT void handler(void)                                                      \
 {                                                                               \
     u32 phi2_high = DWT->COMP0;                                                 \
     COMPILER_BARRIER();                                                         \
@@ -275,7 +275,7 @@ static void handler(void)                                                       
                                  early_write_handler, write_handler,            \
                                  early_vic_handler, timing)                     \
 __attribute__((optimize("O2")))                                                 \
-void handler(void)                                                              \
+EXPORT void handler(void)                                                      \
 {                                                                               \
     while (true)                                                                \
     {                                                                           \
