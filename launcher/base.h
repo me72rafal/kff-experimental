@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2022 Kim Jørgensen
+ * Copyright (c) 2019-2026 Kim Jørgensen
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any damages
@@ -44,6 +44,7 @@
 #define CH_FIRE_LEFT    (0xdb)  // SHIFT and +
 #define CH_FIRE_RIGHT   (0xdd)  // SHIFT and -
 
+uint8_t joyhit(void);
 uint8_t getJoy(void);
 void waitKey(void);
 void waitRelease(void);

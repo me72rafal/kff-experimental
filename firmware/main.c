@@ -30,6 +30,7 @@
 #include "runtime.c"
 #include "hal.c"
 #include "print.c"
+#include "fatfs.c"
 #include "filesystem.c"
 #include "file_types.c"
 #include "cartridge.c"
@@ -39,7 +40,6 @@
 #include "disk_drive.c"
 #include "eapi.c"
 #include "diagnostic.c"
-#include "fatfs.c"
 
 int main(void)
 {

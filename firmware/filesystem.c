@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2024 Kim Jørgensen
+ * Copyright (c) 2019-2026 Kim Jørgensen
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any damages
@@ -258,6 +258,41 @@ static bool dir_close(DIR_t *dir)
     if (res != FR_OK)
     {
         err("f_closedir failed (%u)", res);
+    }
+
+    led_on();
+    return res == FR_OK;
+}
+
+static bool sort_dir(FSORTDIR *sort, void *buffer, void *move_buffer)
+{
+    FRESULT res = f_sortdir(sort, buffer, move_buffer);
+    if (res != FR_OK)
+    {
+        err("f_sortdir failed (%u)", res);
+        led_on();
+    }
+
+    return res == FR_OK;
+}
+
+static bool sort_next(FSORTDIR *sort)
+{
+    FRESULT res = f_sortnext(sort);
+    if (res != FR_OK)
+    {
+        err("f_sortnext failed (%u)", res);
+    }
+
+    return res == FR_OK;
+}
+
+static bool sort_close(FSORTDIR *sort)
+{
+    FRESULT res = f_sortclose(sort);
+    if (res != FR_OK)
+    {
+        err("f_sortclose failed (%u)", res);
     }
 
     led_on();

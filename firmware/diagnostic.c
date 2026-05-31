@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2022 Kim Jørgensen
+ * Copyright (c) 2019-2026 Kim Jørgensen
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any damages
@@ -17,11 +17,6 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
  */
-
-#define COLOR_PURPLE        (4)
-#define COLOR_YELLOW        (7)
-#define COLOR_LIGHTRED      (10)
-#define COLOR_LIGHTGREEN    (13)
 
 static const char diag_header[] = "Diagnostic\r\n";
 static const char diag_underline[] = "\xa3\xa3\xa3\xa3\xa3\xa3\xa3\xa3\xa3\xa3";

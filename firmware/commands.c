@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 Kim Jørgensen
+ * Copyright (c) 2019-2026 Kim Jørgensen
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any damages
@@ -17,6 +17,11 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
  */
+
+#define COLOR_PURPLE        (4)
+#define COLOR_YELLOW        (7)
+#define COLOR_LIGHTRED      (10)
+#define COLOR_LIGHTGREEN    (13)
 
 static bool (*c64_wait_handler)(void);
 
@@ -62,7 +67,7 @@ static void c64_send_data(const void *buffer, size_t size)
     }
 }
 
-static void c64_wait_for_command(u8 cmd)
+static u8 c64_wait_for_command(u8 cmd)
 {
     u8 reply;
     while (!c64_get_reply(cmd, &reply))
@@ -73,6 +78,8 @@ static void c64_wait_for_command(u8 cmd)
             break;
         }
     }
+
+    return reply;
 }
 
 static void c64_send_command(u8 cmd)
@@ -81,12 +88,12 @@ static void c64_send_command(u8 cmd)
     c64_wait_for_command(cmd);
 }
 
-static void c64_interface_sync(void)
+static u8 c64_interface_sync(void)
 {
     c64_set_command(CMD_SYNC);
     c64_interface(true);
 
-    c64_wait_for_command(CMD_SYNC);
+    return c64_wait_for_command(CMD_SYNC);
 }
 
 static char sanitize_char(char c)
@@ -263,6 +270,12 @@ static inline void c64_send_warning(const char *text)
 static inline void c64_send_prg_message(const char *text)
 {
     c64_send_message_command(CMD_FLASH_MESSAGE, text);
+}
+
+static void c64_send_cancel_message(const char *title, const char *text)
+{
+    c64_send_data(title, DIR_NAME_LENGTH);
+    c64_send_message_command(CMD_CANCEL_MESSAGE, text);
 }
 
 static void c64_receive_string(char *buffer)

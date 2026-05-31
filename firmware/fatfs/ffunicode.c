@@ -7,6 +7,7 @@ WCHAR ff_uni2oem(	/* Returns converted character, zero on error */
 	WORD	cp		/* OEM code page */
 )
 {
+	(void)cp;
 	return uni;
 }
 
@@ -15,6 +16,7 @@ WCHAR ff_oem2uni(	/* Returns converted character, zero on error */
 	WORD	cp		/* OEM code page */
 )
 {
+	(void)cp;
 	return oem;
 }
 

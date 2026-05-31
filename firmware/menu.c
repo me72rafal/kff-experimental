@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2024 Kim Jørgensen
+ * Copyright (c) 2019-2026 Kim Jørgensen
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any damages
@@ -30,6 +30,7 @@
 #include "menu_d64.c"
 #include "menu_t64.c"
 #include "menu_options.c"
+#include "menu_utilities.c"
 #include "menu_settings.c"
 
 static void menu_loop(void)
@@ -94,6 +95,10 @@ static void menu_loop(void)
             case REPLY_SELECT:
                 data = c64_receive_byte();
                 cmd = menu->select(menu->state, data & 0xc0, data & 0x3f);
+                break;
+
+            case REPLY_UTILITIES:
+                cmd = handle_utilities();
                 break;
 
             case REPLY_SETTINGS:

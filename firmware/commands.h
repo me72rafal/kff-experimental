@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 Kim Jørgensen
+ * Copyright (c) 2019-2026 Kim Jørgensen
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any damages
@@ -46,6 +46,7 @@ typedef enum
     CMD_MESSAGE,
     CMD_WARNING,
     CMD_FLASH_MESSAGE,
+    CMD_CANCEL_MESSAGE,
     CMD_TEXT,
     CMD_TEXT_WAIT,
     CMD_TEXT_READER,
@@ -68,6 +69,7 @@ typedef enum
     CMD_SYNC = 0x55,
 
     REPLY_OK = 0x80,
+    REPLY_CANCEL,
 
     // Menu replies
     REPLY_DIR,
@@ -77,6 +79,7 @@ typedef enum
     REPLY_DIR_NEXT_PAGE,
 
     REPLY_SELECT,
+    REPLY_UTILITIES,
     REPLY_SETTINGS,
     REPLY_BASIC,
     REPLY_KILL,
