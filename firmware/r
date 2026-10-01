@@ -1,0 +1,55 @@
+In file included from cartridges/cartridge.c:68,
+                 from main.c:36:
+cartridges/kernal.c: In function 'kernalf_handler':
+cartridges/kernal.c:320:25: error: 'C64_RESET' undeclared (first use in this function); did you mean 'c64_reset'?
+  320 |         if ((control & (C64_RESET|MENU_BTN)) != C64_RESET) {
+      |                         ^~~~~~~~~
+      |                         c64_reset
+cartridges/kernal.c:320:25: note: each undeclared identifier is reported only once for each function it appears in
+cartridges/cartridge.c: In function 'crt_get_handler':
+cartridges/cartridge.c:124:18: error: 'cfg_file' undeclared (first use in this function)
+  124 |             if ((cfg_file.flags & DAT_FLAG_PLA) == 0) {
+      |                  ^~~~~~~~
+cartridges/cartridge.c:124:35: error: 'DAT_FLAG_PLA' undeclared (first use in this function); did you mean 'DAT_FLAGS'?
+  124 |             if ((cfg_file.flags & DAT_FLAG_PLA) == 0) {
+      |                                   ^~~~~~~~~~~~
+      |                                   DAT_FLAGS
+cartridges/cartridge.c: In function 'crt_init':
+cartridges/cartridge.c:229:14: error: 'CRT_MAGIC_FORMEL' undeclared (first use in this function); did you mean 'CRT_MAGIC_VOICE'?
+  229 |         case CRT_MAGIC_FORMEL:
+      |              ^~~~~~~~~~~~~~~~
+      |              CRT_MAGIC_VOICE
+cartridges/cartridge.c:230:13: error: implicit declaration of function 'mf_init'; did you mean 'fm_init'? [-Wimplicit-function-declaration]
+  230 |             mf_init();
+      |             ^~~~~~~
+      |             fm_init
+In file included from menu.c:28,
+                 from main.c:39:
+loader.c: In function 'no_autostart_prg':
+loader.c:845:15: error: 'cfg_file' undeclared (first use in this function)
+  845 |     return (((cfg_file.boot_type == DAT_PRG) || (cfg_file.boot_type == DAT_DISK)) &&
+      |               ^~~~~~~~
+loader.c:846:32: error: 'DAT_FLAG_AUTOSTART_PRG' undeclared (first use in this function); did you mean 'DAT_FLAG_AUTOSTART_D64'?
+  846 |             ((cfg_file.flags & DAT_FLAG_AUTOSTART_PRG) == 0));
+      |                                ^~~~~~~~~~~~~~~~~~~~~~
+      |                                DAT_FLAG_AUTOSTART_D64
+In file included from menu.c:29:
+menu_sd.c: In function 'sd_handle_save_updated_crt':
+menu_sd.c:237:43: error: 'cfg_file' undeclared (first use in this function)
+  237 |             if (!sd_generate_new_filename(cfg_file.file, "crt"))
+      |                                           ^~~~~~~~
+In file included from menu.c:34:
+menu_settings.c: In function 'settings_pla_text':
+menu_settings.c:89:12: error: implicit declaration of function 'setting_print' [-Wimplicit-function-declaration]
+   89 |     return setting_print("PLA for Kernal emulation",
+      |            ^~~~~~~~~~~~~
+menu_settings.c:90:26: error: 'DAT_FLAG_PLA' undeclared (first use in this function); did you mean 'DAT_FLAGS'?
+   90 |         settings_flags & DAT_FLAG_PLA ? "fast" : "original");
+      |                          ^~~~~~~~~~~~
+      |                          DAT_FLAGS
+menu_settings.c: In function 'settings_pla_change':
+menu_settings.c:95:26: error: 'DAT_FLAG_PLA' undeclared (first use in this function); did you mean 'DAT_FLAGS'?
+   95 |     if (settings_flags & DAT_FLAG_PLA)
+      |                          ^~~~~~~~~~~~
+      |                          DAT_FLAGS
+make: *** [Makefile:137: build/main.o] Error 1

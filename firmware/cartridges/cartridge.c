@@ -29,6 +29,17 @@ static u8 *crt_rom_ptr;
 static u32 special_button;
 static u32 freezer_state;
 
+
+// C64 bus timing
+static u32 phi2_hiram;
+//static u32 phi2_adr_stable;
+static u32 phi2_cpu_start;
+static u32 phi2_write_delay;
+static u32 phi2_cpu_end;
+static u32 phi2_vic_start;
+static u32 phi2_vic_delay;
+static u32 phi2_vic_end;
+
 // Ordered by cartridge id
 #include "crt_normal.c"
 #include "action_replay_4x.c"
@@ -53,13 +64,13 @@ static u32 freezer_state;
 #include "rgcd.c"
 #include "c128_normal.c"
 #include "kff.c"
+#include "destest_switch.c"
+#include "kernal.c"
 
-#define NTSC_OR_PAL_HANDLER(name)   \
-    ntsc ? name##_ntsc_handler : name##_pal_handler
+#define NTSC_OR_PAL_HANDLER(name)     name##_handler
 
 static void (*crt_get_handler(u32 cartridge_type, bool vic_support)) (void)
 {
-    bool ntsc = c64_is_ntsc();
     switch (cartridge_type)
     {
         case CRT_NORMAL_CARTRIDGE:
@@ -109,6 +120,13 @@ static void (*crt_get_handler(u32 cartridge_type, bool vic_support)) (void)
         case CRT_COMAL_80:
             return comal80_handler;
 
+        case CRT_KERNAL:
+            if ((dat_file.flags & DAT_FLAG_PLA) == 0) {
+                return kernalo_handler;
+            } else {
+                return kernalf_handler;
+            }
+
         case CRT_ROSS:
             return ross_handler;
 #endif
@@ -136,6 +154,9 @@ static void (*crt_get_handler(u32 cartridge_type, bool vic_support)) (void)
 
         case CRT_C128_NORMAL_CARTRIDGE:
             return NTSC_OR_PAL_HANDLER(c128);
+            
+        case CRT_DESTEST_SWITCH:
+            return NTSC_OR_PAL_HANDLER(dts);
     }
 
     return NULL;
@@ -143,6 +164,27 @@ static void (*crt_get_handler(u32 cartridge_type, bool vic_support)) (void)
 
 static void crt_init(DAT_CRT_HEADER *crt_header)
 {
+    bool ntsc = c64_is_ntsc();
+    if (!ntsc) {
+        phi2_hiram = 83;                                           // for CRT_KERNAL
+        //phi2_adr_stable = 152;                                      // for by CRT_MAGIC_FORMEL
+        phi2_cpu_start = PAL_PHI2_CPU_START;
+        phi2_write_delay = PAL_PHI2_WRITE_DELAY;
+        phi2_cpu_end = PAL_PHI2_CPU_END-1;
+        phi2_vic_start = PAL_PHI2_VIC_START;
+        phi2_vic_delay = PAL_PHI2_VIC_DELAY;
+        phi2_vic_end = PAL_PHI2_VIC_END;
+    }
+    else {
+        phi2_hiram = 80;                                             // for CRT_KERNAL
+        //phi2_adr_stable = 146;                                        // for CRT_MAGIC_FORMEL
+        phi2_cpu_start = NTSC_PHI2_CPU_START;
+        phi2_write_delay = NTSC_PHI2_WRITE_DELAY;
+        phi2_cpu_end = NTSC_PHI2_CPU_END;
+        phi2_vic_start = NTSC_PHI2_VIC_START;
+        phi2_vic_delay = NTSC_PHI2_VIC_DELAY;
+        phi2_vic_end = NTSC_PHI2_VIC_END;
+    }
     switch (crt_header->type)
     {
         case CRT_ACTION_REPLAY:
@@ -183,6 +225,10 @@ static void crt_init(DAT_CRT_HEADER *crt_header)
         case CRT_COMAL_80:
             comal80_init();
             break;
+        
+        case CRT_KERNAL:
+            kernal_init();
+            break;
 
         case CRT_ROSS:
             ross_init(crt_header);
@@ -203,6 +249,10 @@ static void crt_init(DAT_CRT_HEADER *crt_header)
 
         case CRT_RGCD:
             rgcd_init(crt_header);
+            break;
+        
+        case CRT_DESTEST_SWITCH:
+            dts_init();
             break;
     }
 }

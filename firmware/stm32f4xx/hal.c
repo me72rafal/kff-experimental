@@ -206,6 +206,11 @@ NO_RETURN restart_to_menu(void)
 /************************************************/
 static void configure_system(void)
 {
+    //    uint32_t res = RCC->RSR;
+    // Clear all reset flags to prepare for the next reset
+//    RCC->RSR |= RCC_RSR_RMVF;
+    
+
     sysclk_config();
     fpu_config();
     dwt_cyccnt_config();
@@ -224,4 +229,21 @@ static void configure_system(void)
 
     usb_config();
     c64_interface_config();
+    
+//    return res;
 }
+
+
+
+/******************************************************************************
+* Detect Power-on-Reset
+******************************************************************************/
+/*static bool kff_por_reset(void)
+{
+    uint32_t res = RCC->RSR;
+    // Clear all reset flags to prepare for the next reset
+    RCC->RSR |= RCC_RSR_RMVF;
+    return (res & RCC_RSR_PORRSTF);
+}
+        
+*/

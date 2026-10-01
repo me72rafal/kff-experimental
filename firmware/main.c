@@ -60,7 +60,7 @@ int main(void)
         delay_ms(1000);
     }
 
-    if (!auto_boot())
+    if (!auto_boot() || no_autostart_prg())
     {
         c64_enable();
         menu_loop();

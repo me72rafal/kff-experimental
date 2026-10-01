@@ -35,7 +35,6 @@ typedef enum
     CRT_WESTERMANN_LEARNING,
     CRT_REX_UTILITY,
     CRT_FINAL_CARTRIDGE_I,
-    CRT_MAGIC_FORMEL,
     CRT_C64_GAME_SYSTEM_SYSTEM_3,
     CRT_WARP_SPEED,
     CRT_DINAMIC,
@@ -101,6 +100,9 @@ typedef enum
 	CRT_FREEZE_FRAME_MK2,
 
     // KFF specific extensions
+    CRT_DESTEST_SWITCH = 0x6000,
+    CRT_KERNAL = 0x7000,
+    
     CRT_C128_CARTRIDGE = 0x8000,
     CRT_C128_NORMAL_CARTRIDGE = CRT_C128_CARTRIDGE,
     CRT_C128_WARP_SPEED
@@ -168,11 +170,13 @@ typedef enum
 
 typedef enum
 {
-    DAT_FLAG_PERSIST_BASIC      = 0x01,
-    DAT_FLAG_AUTOSTART_D64      = 0x02,
-    DAT_FLAG_DEVICE_NUM_D64_1   = 0x04,
-    DAT_FLAG_DEVICE_NUM_D64_2   = 0x08,
-    DAT_FLAG_DEVICE_NUM_D64_3   = 0x10
+    DAT_FLAG_PERSIST_BASIC      = 0x0001,
+  	DAT_FLAG_AUTOSTART_PRG      = 0x0008,
+    DAT_FLAG_AUTOSTART_D64      = 0x0010,
+    DAT_FLAG_DEVICE_NUM_D64_1   = 0x0020,
+    DAT_FLAG_DEVICE_NUM_D64_2   = 0x0040,
+    DAT_FLAG_DEVICE_NUM_D64_3   = 0x0080,
+    DAT_FLAG_PLA                = 0x0100
 } DAT_FLAGS;
 
 #define DAT_FLAG_DEVICE_D64_POS 0x02
@@ -235,7 +239,7 @@ typedef struct
 {
     u8 signature[8];    // DAT_SIGNATURE
 
-    u8 flags;           // DAT_FLAGS
+    u16 flags;           // DAT_FLAGS
     u8 boot_type;       // DAT_BOOT_TYPE
     s8 phi2_offset;
 
@@ -246,8 +250,8 @@ typedef struct
         DAT_DISK_HEADER disk;   // boot_type == DAT_DISK
     };
 
-    char path[736];
-    char file[256];
+    char path[512];
+    char file[128];
 } DAT_HEADER;
 #pragma pack(pop)
 

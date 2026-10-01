@@ -126,6 +126,10 @@ FORCE_INLINE void wait_n_cycles(u32 n_cycles)
 #define PAL_PHI2_INT        (PAL_PHI2_HIGH - 43)
 #define PAL_PHI2_LOW        153
 
+#define WAIT_UNTIL(until)   \
+    while (DWT->CYCCNT < until)
+
+
 #define C64_BUS_HANDLER(name)                                                   \
     C64_BUS_HANDLER_(name##_handler, name##_read_handler, name##_write_handler)
 
@@ -178,24 +182,6 @@ EXPORT void handler(void)                                                      \
 #define NTSC_PHI2_VIC_DELAY     195
 #define NTSC_PHI2_VIC_END       221
 
-#define NTSC_WRITE_DELAY()                              \
-    /* Wait for data to become ready on the data bus */ \
-    while (DWT->CYCCNT < NTSC_PHI2_WRITE_DELAY);
-
-#define NTSC_VIC_DELAY()                                \
-    /* Wait for the control bus to become stable */     \
-    while (DWT->CYCCNT < NTSC_PHI2_VIC_DELAY);
-
-#define NTSC_VIC_DELAY_SHORT()  \
-    __NOP();                    \
-    __NOP();                    \
-    __NOP();                    \
-    __NOP();
-
-#define NTSC_CPU_VIC_DELAY()    \
-    NTSC_VIC_DELAY_SHORT();     \
-    __NOP();
-
 // PAL
 #define PAL_PHI2_CPU_START      103
 #define PAL_PHI2_WRITE_DELAY    131
@@ -205,26 +191,36 @@ EXPORT void handler(void)                                                      \
 #define PAL_PHI2_VIC_DELAY      202
 #define PAL_PHI2_VIC_END        230
 
+#define WRITE_DELAY()                               \
+    /* Wait for data to become ready on the data bus */ \
+    while (DWT->CYCCNT < phi2_write_delay);
+
+#define VIC_DELAY()                                 \
+    /* Wait for the control bus to become stable */     \
+    while (DWT->CYCCNT < phi2_vic_delay);
+
+#define VIC_DELAY_SHORT()   \
+    __NOP();                    \
+    __NOP();                    \
+    __NOP();                    \
+    __NOP();                    \
+    __NOP();                    \
+    __NOP();                    \
+    __NOP();
+
+#define CPU_VIC_DELAY()     \
+    VIC_DELAY_SHORT();      \
+    __NOP();
+
 #define PAL_WRITE_DELAY()                               \
     /* Wait for data to become ready on the data bus */ \
-    while (DWT->CYCCNT < PAL_PHI2_WRITE_DELAY);
+    WAIT_UNTIL(PAL_PHI2_WRITE_DELAY)
 
 #define PAL_VIC_DELAY()                                 \
     /* Wait for the control bus to become stable */     \
-    while (DWT->CYCCNT < PAL_PHI2_VIC_DELAY);
+    WAIT_UNTIL(PAL_PHI2_VIC_DELAY)
 
-#define PAL_VIC_DELAY_SHORT()   \
-    __NOP();                    \
-    __NOP();                    \
-    __NOP();                    \
-    __NOP();                    \
-    __NOP();                    \
-    __NOP();                    \
-    __NOP();
 
-#define PAL_CPU_VIC_DELAY()     \
-    PAL_VIC_DELAY_SHORT();      \
-    __NOP();
 
 #define C64_NO_DELAY()
 
@@ -233,47 +229,44 @@ EXPORT void handler(void)                                                      \
     addr = name##_early_vic_handler(addr);                                      \
     COMPILER_BARRIER();
 
-#define C64_EARLY_VIC_HANDLER(name, timing)                                     \
+#define C64_EARLY_VIC_HANDLER(name)                                     \
     C64_EARLY_CPU_VIC_HANDLER(name);                                            \
-    timing##_VIC_DELAY_SHORT();
+    VIC_DELAY_SHORT();
 
 #define C64_VIC_BUS_HANDLER(name)                                               \
-    C64_VIC_BUS_HANDLER_(name##_ntsc_handler, NTSC, name)                       \
-    C64_VIC_BUS_HANDLER_(name##_pal_handler, PAL, name)
+    C64_VIC_BUS_HANDLER_(name##_handler, name)                       
 
-#define C64_VIC_BUS_HANDLER_(handler, timing, name)                             \
+#define C64_VIC_BUS_HANDLER_(handler, name)                             \
     C64_VIC_BUS_HANDLER_EX__(handler,                                           \
                             C64_EARLY_CPU_VIC_HANDLER(name),                    \
                             name##_vic_read_handler, name##_read_handler,       \
-                            timing##_WRITE_DELAY(), name##_write_handler,       \
-                            C64_EARLY_VIC_HANDLER(name, timing), timing)
+                            WRITE_DELAY(), name##_write_handler,       \
+                            C64_EARLY_VIC_HANDLER(name))
 
 #define C64_VIC_BUS_HANDLER_EX(name)                                            \
-    C64_VIC_BUS_HANDLER_EX_(name##_ntsc_handler, NTSC, name)                    \
-    C64_VIC_BUS_HANDLER_EX_(name##_pal_handler, PAL, name)
+    C64_VIC_BUS_HANDLER_EX_(name##_handler, name)                    
 
-#define C64_VIC_BUS_HANDLER_EX_(handler, timing, name)                          \
-    C64_VIC_BUS_HANDLER_EX__(handler, timing##_CPU_VIC_DELAY(),                 \
+#define C64_VIC_BUS_HANDLER_EX_(handler, name)                          \
+    C64_VIC_BUS_HANDLER_EX__(handler, CPU_VIC_DELAY(),                 \
                             name##_vic_read_handler, name##_read_handler,       \
                             name##_early_write_handler(), name##_write_handler, \
-                            timing##_VIC_DELAY(), timing)
+                            VIC_DELAY())
 
 #define C64_C128_BUS_HANDLER(name)                                              \
-    C64_C128_BUS_HANDLER_(name##_ntsc_handler, NTSC, name)                      \
-    C64_C128_BUS_HANDLER_(name##_pal_handler, PAL, name)
+    C64_C128_BUS_HANDLER_(name##_handler, name)                      
 
-#define C64_C128_BUS_HANDLER_(handler, timing, name)                            \
-    C64_VIC_BUS_HANDLER_EX__(handler, timing##_CPU_VIC_DELAY(),                 \
+#define C64_C128_BUS_HANDLER_(handler, name)                            \
+    C64_VIC_BUS_HANDLER_EX__(handler, CPU_VIC_DELAY(),                 \
                             name##_read_handler, name##_read_handler,           \
-                            timing##_WRITE_DELAY(), name##_write_handler,       \
-                            C64_NO_DELAY(), timing)
+                            WRITE_DELAY(), name##_write_handler,       \
+                            C64_NO_DELAY())
 
 // This supports VIC-II reads from the cartridge (i.e. character and sprite data)
 // but uses 100% CPU - other interrupts are not served due to the interrupt priority
 #define C64_VIC_BUS_HANDLER_EX__(handler, early_cpu_vic_handler,                \
                                  vic_read_handler, read_handler,                \
                                  early_write_handler, write_handler,            \
-                                 early_vic_handler, timing)                     \
+                                 early_vic_handler)                     \
 __attribute__((optimize("O2")))                                                 \
 EXPORT void handler(void)                                                      \
 {                                                                               \
@@ -284,7 +277,7 @@ EXPORT void handler(void)                                                      \
         DWT->CYCCNT = cnt;                                                      \
         COMPILER_BARRIER();                                                     \
         /* Wait for CPU cycle */                                                \
-        WAIT_CYCLES(cnt, timing##_PHI2_CPU_START);                              \
+        WAIT_CYCLES(cnt, phi2_cpu_start);                              \
         u32 addr = C64_ADDR_READ();                                             \
         COMPILER_BARRIER();                                                     \
         u32 control = C64_CONTROL_READ();                                       \
@@ -294,7 +287,7 @@ EXPORT void handler(void)                                                      \
             if (read_handler(control, addr))                                    \
             {                                                                   \
                 /* Release bus when phi2 is going low */                        \
-                while (DWT->CYCCNT < timing##_PHI2_CPU_END);                    \
+                while (DWT->CYCCNT < phi2_cpu_end);                    \
                 C64_DATA_INPUT();                                               \
             }                                                                   \
         }                                                                       \
@@ -313,7 +306,7 @@ EXPORT void handler(void)                                                      \
             if (vic_read_handler(control, addr))                                \
             {                                                                   \
                 /* Release bus when phi2 is going low */                        \
-                while (DWT->CYCCNT < timing##_PHI2_CPU_END);                    \
+                while (DWT->CYCCNT < phi2_cpu_end);                    \
                 C64_DATA_INPUT();                                               \
             }                                                                   \
         }                                                                       \
@@ -323,7 +316,7 @@ EXPORT void handler(void)                                                      \
             break;                                                              \
         }                                                                       \
         /* Wait for VIC-II cycle */                                             \
-        while (DWT->CYCCNT < timing##_PHI2_VIC_START);                          \
+        while (DWT->CYCCNT < phi2_vic_start);                          \
         addr = C64_ADDR_READ();                                                 \
         COMPILER_BARRIER();                                                     \
         /* Ideally, we would always wait until PHI2_VIC_DELAY here which is */  \
@@ -334,7 +327,7 @@ EXPORT void handler(void)                                                      \
         if (vic_read_handler(control, addr))                                    \
         {                                                                       \
             /* Release bus when phi2 is going high */                           \
-            while (DWT->CYCCNT < timing##_PHI2_VIC_END);                        \
+            while (DWT->CYCCNT < phi2_vic_end);                        \
             C64_DATA_INPUT();                                                   \
         }                                                                       \
         COMPILER_BARRIER();                                                     \

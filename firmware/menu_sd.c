@@ -196,10 +196,9 @@ static u8 sd_parse_file_number(char *filename, u8 *extension)
     return number;
 }
 
-static bool sd_generate_new_filename(void)
+static bool sd_generate_new_filename(char *filename, char *file_extension)
 {
-    char *filename = dat_file.file;
-
+    
     u8 extension;
     u8 length = get_filename_length(filename, &extension);
     if (length <= extension)
@@ -215,7 +214,7 @@ static bool sd_generate_new_filename(void)
 
     if (length < (sizeof(dat_file.file)-5))
     {
-        sprint(filename + extension, " (%u).crt", file_number);
+        sprint(filename + extension, " (%u).%s", file_number, file_extension);
         return true;
     }
 
@@ -235,7 +234,7 @@ static void sd_handle_save_updated_crt(u8 flags)
         bool file_exists = true;
         while (file_exists)
         {
-            if (!sd_generate_new_filename())
+            if (!sd_generate_new_filename(dat_file.file, "crt"))
             {
                 if (!load_dat())
                 {

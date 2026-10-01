@@ -18,7 +18,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-static u8 settings_flags;
+static u16 settings_flags;
 
 static u8 settings_refresh(OPTIONS_ELEMENT *element, const char *text)
 {
@@ -83,6 +83,32 @@ static u8 settings_device_change(OPTIONS_STATE *state, OPTIONS_ELEMENT *element,
 
     return settings_refresh(element, settings_device_text());
 }
+static const char * setting_print(const char *setting, const char *value)
+{
+    sprint(scratch_buf, "%25s: %s", setting, value);
+    return scratch_buf;
+}
+
+static const char * settings_pla_text(void)
+{
+    return setting_print("PLA for Kernal emulation",
+        settings_flags & DAT_FLAG_PLA ? "fast" : "original");
+}
+
+static u8 settings_pla_change(OPTIONS_STATE *state, OPTIONS_ELEMENT *element, u8 flags)
+{
+    if (settings_flags & DAT_FLAG_PLA)
+    {
+        settings_flags &= ~DAT_FLAG_PLA;
+    }
+    else
+    {
+        settings_flags |= DAT_FLAG_PLA;
+    }
+
+    return settings_refresh(element, settings_pla_text());
+}
+
 
 static u8 settings_save(OPTIONS_STATE *state, OPTIONS_ELEMENT *element, u8 flags)
 {
@@ -103,6 +129,7 @@ static u8 handle_settings(void)
     options_add_text_element(options, settings_basic_change, settings_basic_text());
     options_add_text_element(options, settings_autostart_change, settings_autostart_text());
     options_add_text_element(options, settings_device_change, settings_device_text());
+    options_add_text_element(options, settings_pla_change, settings_pla_text());
     options_add_text_element(options, settings_save, "Save");
     options_add_dir(options, "Cancel");
     return handle_options();

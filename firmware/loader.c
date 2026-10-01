@@ -480,7 +480,6 @@ static bool auto_boot(void)
 {
     bool result = false;
 
-    load_dat();
     if (menu_signature() || menu_button_pressed())
     {
         invalidate_menu_signature();
@@ -542,13 +541,13 @@ static inline bool autostart_d64(void)
     return (dat_file.flags & DAT_FLAG_AUTOSTART_D64) != 0;
 }
 
-static u8 get_device_number(u8 flags)
+static u8 get_device_number(u16 flags)
 {
     u8 offset = flags & DAT_FLAG_DEVICE_D64_MSK;
     return (offset >> DAT_FLAG_DEVICE_D64_POS) + 8;
 }
 
-static void set_device_number(u8 *flags, u8 device)
+static void set_device_number(u16 *flags, u8 device)
 {
     u8 offset = ((device - 8) << DAT_FLAG_DEVICE_D64_POS) &
                 DAT_FLAG_DEVICE_D64_MSK;
@@ -839,4 +838,10 @@ static bool c64_set_mode(void)
     }
 
     return result;
+}
+
+static inline bool no_autostart_prg(void)
+{
+    return (((dat_file.boot_type == DAT_PRG) || (dat_file.boot_type == DAT_DISK)) &&
+            ((dat_file.flags & DAT_FLAG_AUTOSTART_PRG) == 0));
 }
